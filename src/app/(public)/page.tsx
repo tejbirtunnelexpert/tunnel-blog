@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PostCard from "@/components/blog/PostCard";
 import NewsletterWidget from "@/components/blog/NewsletterWidget";
+import HeroSlideshow from "@/components/blog/HeroSlideshow";
 import { ArrowRight, Radio, Cpu, TrafficCone, Zap } from "lucide-react";
 import type { Post } from "@/types";
 
@@ -33,6 +34,16 @@ async function getCategories() {
   return data || [];
 }
 
+async function getHeroSlides() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("hero_slides")
+    .select("id, image_url, caption")
+    .eq("active", true)
+    .order("sort_order");
+  return data || [];
+}
+
 const features = [
   { icon: Radio, label: "Tunnel ELV", desc: "Low voltage systems, SCADA & monitoring" },
   { icon: TrafficCone, label: "ITS Solutions", desc: "Intelligent transport management" },
@@ -41,23 +52,29 @@ const features = [
 ];
 
 export default async function HomePage() {
-  const [posts, categories] = await Promise.all([getPosts(), getCategories()]);
+  const [posts, categories, slides] = await Promise.all([getPosts(), getCategories(), getHeroSlides()]);
   const [featured, ...rest] = posts || [];
 
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-tunnel-gradient border-b border-tunnel-700 py-20 px-4">
-        {/* Tunnel perspective lines */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(to bottom right, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%),
-              linear-gradient(to bottom left, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%)
-            `,
-          }}
-        />
-        <div className="max-w-3xl mx-auto text-center relative">
+      <section className="relative overflow-hidden bg-tunnel-gradient border-b border-tunnel-700 py-20 px-4" style={{ minHeight: "420px" }}>
+        {/* Slideshow background (if slides exist) */}
+        {slides.length > 0 ? (
+          <HeroSlideshow slides={slides} />
+        ) : (
+          /* Default tunnel perspective lines */
+          <div className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{
+              backgroundImage: `
+                linear-gradient(to bottom right, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%),
+                linear-gradient(to bottom left, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%)
+              `,
+            }}
+          />
+        )}
+
+        <div className="max-w-3xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 signal-badge mb-6">
             <Radio className="w-3.5 h-3.5" />
             <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
