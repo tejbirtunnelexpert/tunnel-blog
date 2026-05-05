@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import PostCard from "@/components/blog/PostCard";
 import { Search, Loader2 } from "lucide-react";
 import type { Post } from "@/types";
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [posts, setPosts] = useState<Post[]>([]);
@@ -80,5 +80,20 @@ export default function SearchPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="flex items-center gap-3 text-gray-400 py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-signal-amber" />
+          Loading search…
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
