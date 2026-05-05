@@ -48,6 +48,28 @@ export interface NewsletterSubscriber {
   active: boolean;
 }
 
+export interface DownloadCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  created_at: string;
+  download_count?: number;
+}
+
+export interface Download {
+  id: string;
+  title: string;
+  description: string | null;
+  file_url: string;
+  thumbnail_url: string | null;
+  category_id: string | null;
+  file_size: string | null;
+  created_at: string;
+  category?: DownloadCategory;
+}
+
 export interface DashboardStats {
   total_posts: number;
   published_posts: number;

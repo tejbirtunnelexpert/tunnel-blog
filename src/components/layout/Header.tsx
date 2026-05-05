@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/category/tunnel-elv", label: "Tunnel ELV" },
   { href: "/category/traffic-management", label: "ITS" },
+  { href: "/downloads", label: "Downloads" },
   { href: "/search", label: "Search" },
 ];
 
