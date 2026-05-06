@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Radio, Search } from "lucide-react";
+import { Menu, X, Radio, Search, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const navLinks = [
@@ -53,6 +53,12 @@ export default function Header() {
           ))}
         </nav>
 
+        {/* Member button */}
+        <Link href="/member" className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-signal-amber border border-signal-amber hover:bg-signal-amber hover:text-tunnel-900 transition-all shrink-0">
+          <Users className="w-3.5 h-3.5" />
+          Member
+        </Link>
+
         {/* Search bar */}
         <form onSubmit={handleSearch} className="hidden sm:flex items-center relative">
           <input
@@ -89,6 +95,10 @@ export default function Header() {
               {l.label}
             </Link>
           ))}
+          <Link href="/member" onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-signal-amber border border-signal-amber/50 rounded-md hover:bg-signal-amber/10 transition-colors">
+            <Users className="w-4 h-4" /> Member Area
+          </Link>
           <form onSubmit={handleSearch} className="pt-2">
             <input
               value={query}

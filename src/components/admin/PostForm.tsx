@@ -28,6 +28,9 @@ export default function PostForm({ post, categories, mode }: Props) {
   );
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>(post?.tags?.map((t) => t.name) || []);
+  const [authorName, setAuthorName] = useState((post as any)?.author_name || "Tejbir");
+  const [authorLocation, setAuthorLocation] = useState((post as any)?.author_location || "");
+  const [authorTimezone, setAuthorTimezone] = useState((post as any)?.author_timezone || "Asia/Kolkata");
   const [saving, setSaving] = useState(false);
 
   function addTag() {
@@ -64,6 +67,9 @@ export default function PostForm({ post, categories, mode }: Props) {
         status: saveStatus,
         categories: selectedCategories,
         tags,
+        author_name: authorName || null,
+        author_location: authorLocation || null,
+        author_timezone: authorTimezone || "Asia/Kolkata",
       };
 
       const url = mode === "new" ? "/api/posts" : `/api/posts/${post!.id}`;
@@ -127,6 +133,34 @@ export default function PostForm({ post, categories, mode }: Props) {
 
         {/* Sidebar */}
         <div className="space-y-4">
+          {/* Author Info */}
+          <div className="tunnel-card p-4 space-y-3">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Author Info</h3>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Author Name</label>
+              <input value={authorName} onChange={e => setAuthorName(e.target.value)}
+                placeholder="e.g. Tejbir Singh" className="tunnel-input" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Location</label>
+              <input value={authorLocation} onChange={e => setAuthorLocation(e.target.value)}
+                placeholder="e.g. Dubai, UAE" className="tunnel-input" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Timezone</label>
+              <select value={authorTimezone} onChange={e => setAuthorTimezone(e.target.value)} className="tunnel-input">
+                <option value="Asia/Kolkata">India (IST, UTC+5:30)</option>
+                <option value="Asia/Dubai">Dubai (GST, UTC+4)</option>
+                <option value="Asia/Riyadh">Riyadh (AST, UTC+3)</option>
+                <option value="Asia/Singapore">Singapore (SGT, UTC+8)</option>
+                <option value="Europe/London">London (GMT/BST)</option>
+                <option value="Europe/Paris">Paris (CET, UTC+1)</option>
+                <option value="America/New_York">New York (EST, UTC-5)</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
+          </div>
+
           {/* Status */}
           <div className="tunnel-card p-4 space-y-3">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Status</h3>

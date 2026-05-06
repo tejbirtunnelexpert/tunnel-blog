@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, FileText, MessageSquare,
-  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images
+  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images, Users, BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -18,6 +18,8 @@ const navItems = [
   { href: "/admin/downloads", label: "Downloads", icon: Download },
   { href: "/admin/hero-slides", label: "Hero Slideshow", icon: Images },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+  { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/member-resources", label: "Member Resources", icon: BookOpen },
 ];
 
 export default function AdminSidebar() {
