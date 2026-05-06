@@ -44,12 +44,11 @@ export default function HeroSlideshow({ slides }: Props) {
   return (
     <div className="absolute inset-0">
       {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
-        style={{
-          backgroundImage: `url(${slides[current].image_url})`,
-          opacity: fading ? 0 : 1,
-        }}
+      <img
+        src={slides[current].image_url}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500"
+        style={{ opacity: fading ? 0 : 1 }}
       />
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-tunnel-950/70" />

@@ -91,15 +91,23 @@ export default function HeroSlidesPage() {
     if (target < 0 || target >= newSlides.length) return;
     [newSlides[index], newSlides[target]] = [newSlides[target], newSlides[index]];
 
-    // Update sort orders
-    await Promise.all(newSlides.map((s, i) =>
-      fetch(`/api/hero-slides/${s.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...s, sort_order: i }),
-      })
-    ));
-    load();
+    // Update local state immediately so UI responds
+    setSlides(newSlides);
+
+    // Save new sort orders to database
+    try {
+      await Promise.all(newSlides.map((s, i) =>
+        fetch(`/api/hero-slides/${s.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...s, sort_order: i }),
+        })
+      ));
+      toast.success("Order saved!");
+    } catch {
+      toast.error("Failed to save order");
+      load(); // revert on error
+    }
   }
 
   return (
