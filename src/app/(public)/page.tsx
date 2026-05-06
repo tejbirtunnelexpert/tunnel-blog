@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import PostCard from "@/components/blog/PostCard";
 import NewsletterWidget from "@/components/blog/NewsletterWidget";
 import HeroSlideshow from "@/components/blog/HeroSlideshow";
-import { ArrowRight, Radio, Cpu, TrafficCone, Zap } from "lucide-react";
+import { ArrowRight, Radio, Cpu, TrafficCone, Zap, type LucideIcon } from "lucide-react";
 import type { Post } from "@/types";
 
 async function getPosts() {
@@ -30,7 +30,7 @@ async function getPosts() {
 
 async function getCategories() {
   const supabase = await createClient();
-  const { data } = await supabase.from("categories").select("id, name, slug").limit(6);
+  const { data } = await supabase.from("categories").select("id, name, slug, feature_order").limit(20);
   return data || [];
 }
 
@@ -44,16 +44,30 @@ async function getHeroSlides() {
   return data || [];
 }
 
-const features = [
-  { icon: Radio, label: "Tunnel ELV", desc: "Low voltage systems, SCADA & monitoring", href: "/category/tunnel-elv" },
-  { icon: TrafficCone, label: "ITS Solutions", desc: "Intelligent transport management", href: "/category/its-solutions" },
-  { icon: Cpu, label: "Automation", desc: "PLC, control panels & integration", href: "/category/automation" },
-  { icon: Zap, label: "Road Safety", desc: "Incident detection & emergency systems", href: "/category/road-safety" },
+const TILE_ICONS: LucideIcon[] = [Radio, TrafficCone, Cpu, Zap];
+const TILE_DEFAULTS = [
+  { label: "Tunnel ELV", desc: "Low voltage systems, SCADA & monitoring" },
+  { label: "ITS Solutions", desc: "Intelligent transport management" },
+  { label: "Automation", desc: "PLC, control panels & integration" },
+  { label: "Road Safety", desc: "Incident detection & emergency systems" },
 ];
 
 export default async function HomePage() {
   const [posts, categories, slides] = await Promise.all([getPosts(), getCategories(), getHeroSlides()]);
   const [featured, ...rest] = posts || [];
+
+  // Build the 4 feature tiles from categories with feature_order assigned
+  const featureTiles = [1, 2, 3, 4].map((slot) => {
+    const cat = categories.find((c: any) => c.feature_order === slot);
+    const defaults = TILE_DEFAULTS[slot - 1];
+    return {
+      icon: TILE_ICONS[slot - 1],
+      label: cat?.name || defaults.label,
+      desc: defaults.desc,
+      href: cat ? `/category/${cat.slug}` : `/blog`,
+      linked: !!cat,
+    };
+  });
 
   return (
     <div>
@@ -95,7 +109,7 @@ export default async function HomePage() {
       {/* Feature pills */}
       <section className="border-b border-tunnel-700 bg-tunnel-900/50">
         <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {features.map(({ icon: Icon, label, desc, href }) => (
+          {featureTiles.map(({ icon: Icon, label, desc, href, linked }) => (
             <Link key={label} href={href} className="flex items-start gap-3 group hover:bg-signal-amber/5 rounded-lg p-2 -m-2 transition-colors">
               <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-signal-amber/20 group-hover:border-signal-amber/40 transition-colors">
                 <Icon className="w-4 h-4 text-signal-amber" />
