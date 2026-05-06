@@ -45,10 +45,10 @@ async function getHeroSlides() {
 }
 
 const features = [
-  { icon: Radio, label: "Tunnel ELV", desc: "Low voltage systems, SCADA & monitoring" },
-  { icon: TrafficCone, label: "ITS Solutions", desc: "Intelligent transport management" },
-  { icon: Cpu, label: "Automation", desc: "PLC, control panels & integration" },
-  { icon: Zap, label: "Road Safety", desc: "Incident detection & emergency systems" },
+  { icon: Radio, label: "Tunnel ELV", desc: "Low voltage systems, SCADA & monitoring", href: "/category/tunnel-elv" },
+  { icon: TrafficCone, label: "ITS Solutions", desc: "Intelligent transport management", href: "/category/its-solutions" },
+  { icon: Cpu, label: "Automation", desc: "PLC, control panels & integration", href: "/category/automation" },
+  { icon: Zap, label: "Road Safety", desc: "Incident detection & emergency systems", href: "/category/road-safety" },
 ];
 
 export default async function HomePage() {
@@ -95,16 +95,16 @@ export default async function HomePage() {
       {/* Feature pills */}
       <section className="border-b border-tunnel-700 bg-tunnel-900/50">
         <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {features.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/20 flex items-center justify-center shrink-0 mt-0.5">
+          {features.map(({ icon: Icon, label, desc, href }) => (
+            <Link key={label} href={href} className="flex items-start gap-3 group hover:bg-signal-amber/5 rounded-lg p-2 -m-2 transition-colors">
+              <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-signal-amber/20 group-hover:border-signal-amber/40 transition-colors">
                 <Icon className="w-4 h-4 text-signal-amber" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-white">{label}</div>
+                <div className="text-sm font-semibold text-white group-hover:text-signal-amber transition-colors">{label}</div>
                 <div className="text-xs text-gray-500 leading-snug">{desc}</div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
