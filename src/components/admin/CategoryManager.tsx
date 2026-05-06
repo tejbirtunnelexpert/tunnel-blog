@@ -55,7 +55,8 @@ export default function CategoryManager({ categories: initial }: { categories: C
   async function toggleTile(id: string, slot: number) {
     setTileUpdating(id + "-" + slot);
     const cat = categories.find((c) => c.id === id);
-    const currentTiles: number[] = (cat as any)?.feature_tiles || [];
+    // Normalise to numbers — Supabase may return INTEGER[] as strings
+    const currentTiles: number[] = ((cat as any)?.feature_tiles || []).map(Number);
     const hasSlot = currentTiles.includes(slot);
 
     const newTiles = hasSlot
@@ -120,7 +121,8 @@ export default function CategoryManager({ categories: initial }: { categories: C
           </div>
           <div className="divide-y divide-tunnel-700">
             {categories.map((cat) => {
-              const catTiles: number[] = (cat as any).feature_tiles || [];
+              // Normalise to numbers — Supabase may return INTEGER[] as strings
+              const catTiles: number[] = ((cat as any).feature_tiles || []).map(Number);
               return (
                 <div key={cat.id} className="flex items-center gap-3 px-4 py-3 hover:bg-tunnel-700/40 transition-colors">
                   <Folder className="w-4 h-4 text-signal-amber shrink-0" />
@@ -136,7 +138,7 @@ export default function CategoryManager({ categories: initial }: { categories: C
                         <button
                           key={slot}
                           type="button"
-                          disabled={!!tileUpdating}
+                          disabled={tileUpdating === cat.id + "-" + slot}
                           onClick={() => toggleTile(cat.id, slot)}
                           title={`Tile ${slot}`}
                           className={`w-10 h-7 rounded text-xs font-bold transition-all ${
