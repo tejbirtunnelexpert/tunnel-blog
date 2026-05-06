@@ -61,14 +61,21 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { title, content, excerpt, cover_image, status, categories, tags } = body;
+  const { title, content, excerpt, cover_image, status, categories, tags, author_name, author_location, author_timezone } = body;
   if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
   const slug = slugify(title) + "-" + Date.now().toString(36);
 
   const { data: post, error } = await supabase
     .from("posts")
-    .insert({ title, slug, content, excerpt, cover_image, status: status || "draft", author_id: user.id })
+    .insert({
+      title, slug, content, excerpt, cover_image,
+      status: status || "draft",
+      author_id: user.id,
+      author_name: author_name || null,
+      author_location: author_location || null,
+      author_timezone: author_timezone || "Asia/Kolkata",
+    })
     .select()
     .single();
 

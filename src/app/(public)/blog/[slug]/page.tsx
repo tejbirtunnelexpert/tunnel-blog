@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import CommentSection from "@/components/blog/CommentSection";
 import NewsletterWidget from "@/components/blog/NewsletterWidget";
 import { formatDate } from "@/lib/utils";
-import { Calendar, Tag, Folder, ArrowLeft } from "lucide-react";
+import { Calendar, Tag, Folder, ArrowLeft, MapPin, User } from "lucide-react";
 import type { Metadata } from "next";
 
 async function getPost(slug: string) {
@@ -70,11 +70,36 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
           <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">{post.title}</h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
-            <span className="flex items-center gap-1.5">
+          {/* Author byline */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-2 border-b border-tunnel-700 pb-4">
+            {post.author_name && (
+              <span className="flex items-center gap-1.5 font-medium text-signal-amber">
+                <User className="w-4 h-4" />
+                {post.author_name}
+              </span>
+            )}
+            {post.author_location && (
+              <span className="flex items-center gap-1.5 text-gray-400">
+                <MapPin className="w-3.5 h-3.5" />
+                {post.author_location}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5 text-gray-400">
               <Calendar className="w-4 h-4" />
-              {formatDate(post.created_at)}
+              {new Date(post.created_at).toLocaleDateString("en-GB", {
+                day: "2-digit", month: "short", year: "numeric",
+                timeZone: post.author_timezone || "Asia/Kolkata",
+              })}
+              {" · "}
+              {new Date(post.created_at).toLocaleTimeString("en-GB", {
+                hour: "2-digit", minute: "2-digit",
+                timeZone: post.author_timezone || "Asia/Kolkata",
+                timeZoneName: "short",
+              })}
             </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
             {post.tags.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Tag className="w-4 h-4" />

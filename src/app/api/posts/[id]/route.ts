@@ -36,9 +36,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { title, content, excerpt, cover_image, status, categories, tags } = body;
+  const { title, content, excerpt, cover_image, status, categories, tags, author_name, author_location, author_timezone } = body;
 
-  const updates: Record<string, unknown> = { content, excerpt, cover_image, status };
+  const updates: Record<string, unknown> = {
+    content, excerpt, cover_image, status,
+    author_name: author_name || null,
+    author_location: author_location || null,
+    author_timezone: author_timezone || "Asia/Kolkata",
+  };
   if (title) {
     updates.title = title;
     updates.slug = slugify(title) + "-" + Date.now().toString(36);
