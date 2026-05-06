@@ -38,7 +38,7 @@ async function getHeroSlides() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("hero_slides")
-    .select("id, image_url, caption")
+    .select("id, image_url, caption, position, opacity, show_caption, heading, subtext")
     .eq("active", true)
     .order("sort_order");
   return data || [];
@@ -58,43 +58,38 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-tunnel-gradient border-b border-tunnel-700 py-20 px-4" style={{ minHeight: "420px" }}>
-        {/* Slideshow background (if slides exist) */}
+      <section className="relative overflow-hidden bg-tunnel-gradient border-b border-tunnel-700" style={{ minHeight: "420px" }}>
         {slides.length > 0 ? (
           <HeroSlideshow slides={slides} />
         ) : (
-          /* Default tunnel perspective lines */
-          <div className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{
-              backgroundImage: `
-                linear-gradient(to bottom right, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%),
-                linear-gradient(to bottom left, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%)
-              `,
-            }}
-          />
+          <>
+            <div className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{
+                backgroundImage: `
+                  linear-gradient(to bottom right, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%),
+                  linear-gradient(to bottom left, transparent 49%, #f59e0b22 49%, #f59e0b22 51%, transparent 51%)
+                `,
+              }}
+            />
+            <div className="max-w-3xl mx-auto text-center relative z-10 py-20 px-4">
+              <div className="inline-flex items-center gap-2 signal-badge mb-6">
+                <Radio className="w-3.5 h-3.5" />
+                <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+                Where Infrastructure<br />
+                <span className="text-signal-amber">Meets Intelligence</span>
+              </h1>
+              <p className="text-lg text-gray-400 mb-8 max-w-xl mx-auto leading-relaxed">
+                Deep-dive articles on road tunnel ELV systems, ITS platforms, traffic automation, and smart infrastructure by Tejbir — a practicing Tunnel ELV & Automation specialist.
+              </p>
+              <div className="flex items-center gap-3 justify-center">
+                <Link href="/blog" className="btn-primary">Explore Articles <ArrowRight className="w-4 h-4" /></Link>
+                <Link href="/search" className="btn-secondary">Search</Link>
+              </div>
+            </div>
+          </>
         )}
-
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 signal-badge mb-6">
-            <Radio className="w-3.5 h-3.5" />
-            <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
-            Where Infrastructure<br />
-            <span className="text-signal-amber">Meets Intelligence</span>
-          </h1>
-          <p className="text-lg text-gray-400 mb-8 max-w-xl mx-auto leading-relaxed">
-            Deep-dive articles on road tunnel ELV systems, ITS platforms, traffic automation, and smart infrastructure by Tejbir — a practicing Tunnel ELV & Automation specialist.
-          </p>
-          <div className="flex items-center gap-3 justify-center">
-            <Link href="/blog" className="btn-primary">
-              Explore Articles <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/search" className="btn-secondary">
-              Search
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* Feature pills */}
@@ -117,7 +112,6 @@ export default async function HomePage() {
       {/* Main content */}
       <section className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Posts */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -128,19 +122,13 @@ export default async function HomePage() {
                 All posts <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-
             {featured && <PostCard post={featured} featured />}
-
             <div className="space-y-3">
               {rest.map((post) => <PostCard key={post.id} post={post} />)}
             </div>
           </div>
-
-          {/* Sidebar */}
           <aside className="space-y-6">
             <NewsletterWidget />
-
-            {/* Categories */}
             <div className="tunnel-card p-5">
               <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                 <span className="w-1 h-4 bg-signal-cyan rounded-full inline-block" />
@@ -148,11 +136,8 @@ export default async function HomePage() {
               </h3>
               <div className="space-y-1.5">
                 {categories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/category/${cat.slug}`}
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-sm text-gray-400 hover:text-signal-amber hover:bg-signal-amber/5 transition-colors group"
-                  >
+                  <Link key={cat.id} href={`/category/${cat.slug}`}
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-sm text-gray-400 hover:text-signal-amber hover:bg-signal-amber/5 transition-colors group">
                     <span>{cat.name}</span>
                     <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { image_url, caption, sort_order, position, opacity, show_caption } = body;
+  const { image_url, caption, sort_order, position, opacity, show_caption, heading, subtext } = body;
   if (!image_url) return NextResponse.json({ error: "Image is required" }, { status: 400 });
 
   const { data, error } = await supabase
@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
       position: position || "50% 50%",
       opacity: opacity ?? 80,
       show_caption: show_caption !== false,
+      heading: heading || null,
+      subtext: subtext || null,
       active: true,
     })
     .select().single();

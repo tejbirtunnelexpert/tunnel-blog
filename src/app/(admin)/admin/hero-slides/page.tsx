@@ -13,6 +13,8 @@ interface Slide {
   position: string;
   opacity: number;
   show_caption: boolean;
+  heading: string | null;
+  subtext: string | null;
 }
 
 const defaultSlide = (): Partial<Slide> => ({
@@ -22,6 +24,8 @@ const defaultSlide = (): Partial<Slide> => ({
   opacity: 80,
   show_caption: true,
   active: true,
+  heading: "",
+  subtext: "",
 });
 
 export default function HeroSlidesPage() {
@@ -155,6 +159,8 @@ export default function HeroSlidesPage() {
       position: slide.position || "50% 50%",
       opacity: slide.opacity ?? 80,
       show_caption: slide.show_caption ?? true,
+      heading: slide.heading || "",
+      subtext: slide.subtext || "",
     });
   }
 
@@ -220,10 +226,30 @@ export default function HeroSlidesPage() {
           <div className="flex justify-between text-xs text-gray-600 mt-1"><span>Darker</span><span>Brighter</span></div>
         </div>
 
+        {/* Heading */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Heading <span className="text-gray-500 font-normal">(use new line to split into 2 lines)</span>
+          </label>
+          <textarea value={newSlide.heading || ""} onChange={e => setNewSlide(f => ({ ...f, heading: e.target.value }))}
+            placeholder={"e.g. Tunnel Safety\nMeets Intelligence"}
+            rows={2} className="tunnel-input resize-none" />
+          <p className="text-xs text-gray-500 mt-1">Leave blank to use default text</p>
+        </div>
+
+        {/* Subtext */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-300 mb-2">Description Text</label>
+          <textarea value={newSlide.subtext || ""} onChange={e => setNewSlide(f => ({ ...f, subtext: e.target.value }))}
+            placeholder="e.g. Expert insights on tunnel ELV, ITS systems and road safety automation."
+            rows={2} className="tunnel-input resize-none" />
+          <p className="text-xs text-gray-500 mt-1">Leave blank to use default description</p>
+        </div>
+
         {/* Caption */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-300">Caption</label>
+            <label className="text-sm font-medium text-gray-300">Caption (bottom label)</label>
             <button onClick={() => setNewSlide(f => ({ ...f, show_caption: !f.show_caption }))}
               className={`text-xs px-2 py-1 rounded border transition-colors ${newSlide.show_caption ? "border-signal-amber text-signal-amber" : "border-tunnel-600 text-gray-500"}`}>
               {newSlide.show_caption ? "Visible" : "Hidden"}
@@ -331,10 +357,30 @@ export default function HeroSlidesPage() {
                     <div className="flex justify-between text-xs text-gray-600 mt-1"><span>Darker</span><span>Brighter</span></div>
                   </div>
 
+                  {/* Heading */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Heading <span className="text-gray-500 font-normal">(new line = 2nd line in amber)</span>
+                    </label>
+                    <textarea value={editForm.heading || ""} onChange={e => setEditForm(f => ({ ...f, heading: e.target.value }))}
+                      placeholder={"e.g. Tunnel Safety\nMeets Intelligence"}
+                      rows={2} className="tunnel-input resize-none" />
+                    <p className="text-xs text-gray-500 mt-1">Leave blank to use default</p>
+                  </div>
+
+                  {/* Subtext */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Description Text</label>
+                    <textarea value={editForm.subtext || ""} onChange={e => setEditForm(f => ({ ...f, subtext: e.target.value }))}
+                      placeholder="Short description for this slide…"
+                      rows={2} className="tunnel-input resize-none" />
+                    <p className="text-xs text-gray-500 mt-1">Leave blank to use default</p>
+                  </div>
+
                   {/* Caption */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-300">Caption</label>
+                      <label className="text-sm font-medium text-gray-300">Caption (bottom label)</label>
                       <button onClick={() => setEditForm(f => ({ ...f, show_caption: !f.show_caption }))}
                         className={`text-xs px-2 py-1 rounded border transition-colors ${editForm.show_caption ? "border-signal-amber text-signal-amber" : "border-tunnel-600 text-gray-500"}`}>
                         {editForm.show_caption ? "Visible" : "Hidden"}

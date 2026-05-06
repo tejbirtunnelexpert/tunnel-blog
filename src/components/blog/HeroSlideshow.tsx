@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Radio } from "lucide-react";
+import Link from "next/link";
 
 interface Slide {
   id: string;
@@ -10,21 +11,29 @@ interface Slide {
   position?: string;
   opacity?: number;
   show_caption?: boolean;
+  heading?: string | null;
+  subtext?: string | null;
 }
 
 interface Props {
   slides: Slide[];
 }
 
+const DEFAULT_HEADING = "Where Infrastructure\nMeets Intelligence";
+const DEFAULT_SUBTEXT = "Deep-dive articles on road tunnel ELV systems, ITS platforms, traffic automation, and smart infrastructure by Tejbir — a practicing Tunnel ELV & Automation specialist.";
+
 export default function HeroSlideshow({ slides }: Props) {
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
+  const [textFading, setTextFading] = useState(false);
 
   const goTo = useCallback((index: number) => {
     setFading(true);
+    setTextFading(true);
     setTimeout(() => {
       setCurrent(index);
       setFading(false);
+      setTextFading(false);
     }, 400);
   }, []);
 
@@ -38,7 +47,7 @@ export default function HeroSlideshow({ slides }: Props) {
 
   useEffect(() => {
     if (slides.length <= 1) return;
-    const timer = setInterval(next, 5000);
+    const timer = setInterval(next, 6000);
     return () => clearInterval(timer);
   }, [next, slides.length]);
 
@@ -48,9 +57,14 @@ export default function HeroSlideshow({ slides }: Props) {
   const opacity = (slide.opacity ?? 80) / 100;
   const showCaption = slide.show_caption !== false;
 
+  // Use slide-specific text or fallback to default
+  const headingRaw = slide.heading || DEFAULT_HEADING;
+  const headingLines = headingRaw.split("\n");
+  const subtext = slide.subtext || DEFAULT_SUBTEXT;
+
   return (
-    <div className="absolute inset-0">
-      {/* Background image with opacity & position */}
+    <div className="relative w-full" style={{ minHeight: "420px" }}>
+      {/* Background image */}
       <img
         src={slide.image_url}
         alt=""
@@ -60,8 +74,41 @@ export default function HeroSlideshow({ slides }: Props) {
           objectPosition: slide.position || "50% 50%",
         }}
       />
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-tunnel-950/50" />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-tunnel-950/55" />
+
+      {/* Text content */}
+      <div
+        className="relative z-10 max-w-3xl mx-auto text-center py-20 px-4 transition-opacity duration-400"
+        style={{ opacity: textFading ? 0 : 1 }}
+      >
+        <div className="inline-flex items-center gap-2 signal-badge mb-6">
+          <Radio className="w-3.5 h-3.5" />
+          <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+          {headingLines.map((line, i) => (
+            <span key={i}>
+              {i === headingLines.length - 1
+                ? <span className="text-signal-amber">{line}</span>
+                : <>{line}<br /></>
+              }
+            </span>
+          ))}
+        </h1>
+
+        <p className="text-lg text-gray-300 mb-8 max-w-xl mx-auto leading-relaxed">
+          {subtext}
+        </p>
+
+        <div className="flex items-center gap-3 justify-center">
+          <Link href="/blog" className="btn-primary">
+            Explore Articles <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link href="/search" className="btn-secondary">Search</Link>
+        </div>
+      </div>
 
       {/* Navigation arrows */}
       {slides.length > 1 && (
