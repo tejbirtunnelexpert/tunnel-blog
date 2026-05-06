@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sendEmailOTP, sendSMSOTP } from "@/lib/send-otp";
+import { sendSMSOTP } from "@/lib/send-otp";
 
 function gen4() {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -42,34 +42,29 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Generate OTPs
-  const emailOtp = gen4();
+  // Generate mobile OTP only
   const mobileOtp = gen4();
 
-  // Store OTPs (delete any old ones first)
+  // Store OTP (delete any old ones first)
   await supabase.from("member_otps").delete().eq("member_id", member.id);
   await supabase.from("member_otps").insert({
     member_id: member.id,
-    email_otp: emailOtp,
+    email_otp: "0000", // not used
     mobile_otp: mobileOtp,
   });
 
-  // Send OTPs
-  const [emailResult, smsResult] = await Promise.all([
-    sendEmailOTP(member.email, emailOtp, member.name),
-    sendSMSOTP(member.mobile, mobileOtp),
-  ]);
+  // Auto-mark email as verified (no email OTP required)
+  await supabase.from("members").update({ email_verified: true }).eq("id", member.id);
 
-  // If API keys not configured, return OTPs in response for testing
-  const devMode = emailResult.dev || smsResult.dev;
+  // Send SMS OTP
+  const smsResult = await sendSMSOTP(member.mobile, mobileOtp);
 
   return NextResponse.json({
     success: true,
     memberId: member.id,
-    ...(devMode && {
+    ...(smsResult.dev && {
       _dev: {
-        note: "OTP keys not configured — OTPs shown here for testing only.",
-        emailOtp,
+        note: "FAST2SMS_API_KEY not configured — OTP shown here for testing only.",
         mobileOtp,
       },
     }),

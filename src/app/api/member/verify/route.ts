@@ -3,10 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-  const { memberId, emailOtp, mobileOtp } = await req.json();
+  const { memberId, mobileOtp } = await req.json();
 
-  if (!memberId || !emailOtp || !mobileOtp) {
-    return NextResponse.json({ error: "All fields required." }, { status: 400 });
+  if (!memberId || !mobileOtp) {
+    return NextResponse.json({ error: "OTP is required." }, { status: 400 });
   }
 
   const { data: otpRecord } = await supabase
@@ -19,29 +19,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "OTP record not found. Please sign up again." }, { status: 404 });
   }
 
-  // Check expiry
   if (new Date(otpRecord.expires_at) < new Date()) {
-    return NextResponse.json({ error: "OTPs have expired. Please sign up again." }, { status: 410 });
+    return NextResponse.json({ error: "OTP has expired. Please sign up again." }, { status: 410 });
   }
 
-  const emailMatch = otpRecord.email_otp === emailOtp.trim();
-  const mobileMatch = otpRecord.mobile_otp === mobileOtp.trim();
-
-  if (!emailMatch && !mobileMatch) {
-    return NextResponse.json({ error: "Both OTPs are incorrect." }, { status: 400 });
-  }
-  if (!emailMatch) {
-    return NextResponse.json({ error: "Email OTP is incorrect." }, { status: 400 });
-  }
-  if (!mobileMatch) {
-    return NextResponse.json({ error: "Mobile OTP is incorrect." }, { status: 400 });
+  if (otpRecord.mobile_otp !== mobileOtp.trim()) {
+    return NextResponse.json({ error: "Incorrect OTP. Please try again." }, { status: 400 });
   }
 
   // Mark member as verified
-  await supabase.from("members").update({
-    email_verified: true,
-    mobile_verified: true,
-  }).eq("id", memberId);
+  await supabase.from("members").update({ mobile_verified: true }).eq("id", memberId);
 
   // Delete OTP record
   await supabase.from("member_otps").delete().eq("member_id", memberId);

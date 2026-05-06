@@ -27,11 +27,7 @@ export default function MemberPendingPage() {
           <div className="bg-tunnel-800 rounded-lg p-4 text-left space-y-2.5">
             <div className="flex items-start gap-2.5">
               <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
-              <span className="text-sm text-gray-300">Email verified</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
-              <span className="text-sm text-gray-300">Mobile verified</span>
+              <span className="text-sm text-gray-300">Mobile number verified</span>
             </div>
             <div className="flex items-start gap-2.5">
               <Clock className="w-4 h-4 text-signal-amber mt-0.5 shrink-0" />
