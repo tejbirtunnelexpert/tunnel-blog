@@ -62,9 +62,12 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     success: true,
     memberId: member.id,
-    ...(smsResult.dev && {
+    // Show OTP on screen if: dev mode (no key) OR SMS failed
+    ...((smsResult.dev || !smsResult.ok) && {
       _dev: {
-        note: "FAST2SMS_API_KEY not configured — OTP shown here for testing only.",
+        note: smsResult.dev
+          ? "FAST2SMS_API_KEY not configured — OTP shown here for testing only."
+          : `SMS failed: ${(smsResult as any).error || "Unknown error"} — OTP shown here as fallback.`,
         mobileOtp,
       },
     }),

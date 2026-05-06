@@ -78,20 +78,24 @@ export async function sendSMSOTP(
   }
 
   try {
-    // Strip country code if present (+91 or 91 prefix)
-    const number = mobile.replace(/^\+?91/, "").replace(/\s+/g, "");
+    // Strip country code if present (+91 or 91 prefix), remove spaces/dashes
+    const number = mobile.replace(/^\+?91/, "").replace(/[\s\-]/g, "");
+    console.log(`[Fast2SMS] Sending OTP ${otp} to ${number}`);
 
     const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${apiKey}&route=otp&variables_values=${otp}&flash=0&numbers=${number}`;
     const res = await fetch(url, { headers: { "cache-control": "no-cache" } });
     const body = await res.json();
 
+    console.log("[Fast2SMS] Response:", JSON.stringify(body));
+
     if (!body.return) {
       console.error("Fast2SMS error:", body);
-      return { ok: false };
+      // Return error message so it can be surfaced to user
+      return { ok: false, error: body.message?.join?.(", ") || JSON.stringify(body) };
     }
     return { ok: true };
   } catch (e) {
     console.error("SMS OTP send failed:", e);
-    return { ok: false };
+    return { ok: false, error: String(e) };
   }
 }
