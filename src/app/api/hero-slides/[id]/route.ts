@@ -8,11 +8,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   const body = await req.json();
-  const { image_url, caption, sort_order, active } = body;
+  const { image_url, caption, sort_order, active, position, opacity, show_caption, heading, subtext } = body;
 
   const { data, error } = await supabase
     .from("hero_slides")
-    .update({ image_url, caption, sort_order, active })
+    .update({
+      image_url,
+      caption,
+      sort_order,
+      active,
+      position: position || "50% 50%",
+      opacity: opacity ?? 80,
+      show_caption: show_caption !== false,
+      heading: heading || null,
+      subtext: subtext || null,
+    })
     .eq("id", id)
     .select().single();
 

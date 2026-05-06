@@ -8,7 +8,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("hero_slides")
-    .select("*")
+    .select("id, image_url, caption, position, opacity, show_caption, sort_order, active, heading, subtext")
     .order("sort_order");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
