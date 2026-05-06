@@ -5,7 +5,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("hero_slides")
-    .select("*")
+    .select("id, image_url, caption, position, opacity, show_caption")
     .eq("active", true)
     .order("sort_order");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -18,12 +18,20 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { image_url, caption, sort_order } = body;
+  const { image_url, caption, sort_order, position, opacity, show_caption } = body;
   if (!image_url) return NextResponse.json({ error: "Image is required" }, { status: 400 });
 
   const { data, error } = await supabase
     .from("hero_slides")
-    .insert({ image_url, caption, sort_order: sort_order || 0, active: true })
+    .insert({
+      image_url,
+      caption,
+      sort_order: sort_order || 0,
+      position: position || "50% 50%",
+      opacity: opacity ?? 80,
+      show_caption: show_caption !== false,
+      active: true,
+    })
     .select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

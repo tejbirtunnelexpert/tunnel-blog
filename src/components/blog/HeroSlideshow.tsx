@@ -8,6 +8,8 @@ interface Slide {
   image_url: string;
   caption: string | null;
   position?: string;
+  opacity?: number;
+  show_caption?: boolean;
 }
 
 interface Props {
@@ -42,61 +44,54 @@ export default function HeroSlideshow({ slides }: Props) {
 
   if (!slides || slides.length === 0) return null;
 
+  const slide = slides[current];
+  const opacity = (slide.opacity ?? 80) / 100;
+  const showCaption = slide.show_caption !== false;
+
   return (
     <div className="absolute inset-0">
-      {/* Background image */}
+      {/* Background image with opacity & position */}
       <img
-        src={slides[current].image_url}
+        src={slide.image_url}
         alt=""
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
         style={{
-          opacity: fading ? 0 : 1,
-          objectPosition: slides[current].position || "center",
+          opacity: fading ? 0 : opacity,
+          objectPosition: slide.position || "50% 50%",
         }}
       />
-      {/* Dark overlay so text stays readable */}
-      <div className="absolute inset-0 bg-tunnel-950/70" />
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-tunnel-950/50" />
 
       {/* Navigation arrows */}
       {slides.length > 1 && (
         <>
-          <button
-            onClick={prev}
+          <button onClick={prev}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-tunnel-900/60 border border-tunnel-600 flex items-center justify-center text-gray-300 hover:text-signal-amber hover:border-signal-amber/50 transition-all"
-            aria-label="Previous slide"
-          >
+            aria-label="Previous slide">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <button
-            onClick={next}
+          <button onClick={next}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-tunnel-900/60 border border-tunnel-600 flex items-center justify-center text-gray-300 hover:text-signal-amber hover:border-signal-amber/50 transition-all"
-            aria-label="Next slide"
-          >
+            aria-label="Next slide">
             <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Dots */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
             {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i === current
-                    ? "bg-signal-amber w-6"
-                    : "bg-gray-500 hover:bg-gray-300"
-                }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
+              <button key={i} onClick={() => goTo(i)}
+                className={`h-2 rounded-full transition-all ${i === current ? "bg-signal-amber w-6" : "bg-gray-500 w-2 hover:bg-gray-300"}`}
+                aria-label={`Go to slide ${i + 1}`} />
             ))}
           </div>
         </>
       )}
 
       {/* Caption */}
-      {slides[current].caption && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-xs text-gray-400 bg-tunnel-900/60 px-3 py-1 rounded-full">
-          {slides[current].caption}
+      {showCaption && slide.caption && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-xs text-gray-300 bg-tunnel-900/70 px-4 py-1.5 rounded-full whitespace-nowrap">
+          {slide.caption}
         </div>
       )}
     </div>
