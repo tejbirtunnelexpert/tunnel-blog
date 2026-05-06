@@ -7,6 +7,7 @@ interface Slide {
   id: string;
   image_url: string;
   caption: string | null;
+  position?: string;
 }
 
 interface Props {
@@ -47,8 +48,11 @@ export default function HeroSlideshow({ slides }: Props) {
       <img
         src={slides[current].image_url}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500"
-        style={{ opacity: fading ? 0 : 1 }}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+        style={{
+          opacity: fading ? 0 : 1,
+          objectPosition: slides[current].position || "center",
+        }}
       />
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-tunnel-950/70" />
