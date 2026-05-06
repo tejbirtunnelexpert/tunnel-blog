@@ -58,33 +58,16 @@ export default function CategoryManager({ categories: initial }: { categories: C
     const currentTiles: number[] = (cat as any)?.feature_tiles || [];
     const hasSlot = currentTiles.includes(slot);
 
-    let newTiles: number[];
-    let otherCatNewTiles: { id: string; tiles: number[] } | null = null;
-
-    if (hasSlot) {
-      // Remove this slot from current category
-      newTiles = currentTiles.filter((t) => t !== slot);
-    } else {
-      // Add slot — first remove it from any other category that owns it
-      const owner = categories.find((c) => c.id !== id && ((c as any).feature_tiles || []).includes(slot));
-      if (owner) {
-        const ownerTiles = ((owner as any).feature_tiles || []).filter((t: number) => t !== slot);
-        await supabase.from("categories").update({ feature_tiles: ownerTiles }).eq("id", owner.id);
-        otherCatNewTiles = { id: owner.id, tiles: ownerTiles };
-      }
-      newTiles = [...currentTiles, slot].sort();
-    }
+    const newTiles = hasSlot
+      ? currentTiles.filter((t) => t !== slot)
+      : [...currentTiles, slot].sort();
 
     const { error } = await supabase.from("categories").update({ feature_tiles: newTiles }).eq("id", id);
     if (error) {
       toast.error("Failed to update tile.");
     } else {
       toast.success(hasSlot ? `Removed from Tile ${slot}` : `Added to Tile ${slot}`);
-      setCategories(categories.map((c) => {
-        if (c.id === id) return { ...c, feature_tiles: newTiles } as any;
-        if (otherCatNewTiles && c.id === otherCatNewTiles.id) return { ...c, feature_tiles: otherCatNewTiles.tiles } as any;
-        return c;
-      }));
+      setCategories(categories.map((c) => c.id === id ? { ...c, feature_tiles: newTiles } as any : c));
     }
     setTileUpdating(null);
   }
@@ -98,8 +81,8 @@ export default function CategoryManager({ categories: initial }: { categories: C
           <div>
             <p className="text-xs font-semibold text-signal-amber mb-1">Homepage Feature Tiles</p>
             <p className="text-xs text-gray-400">
-              Toggle which tile slots each category appears in. A category can be linked to multiple tiles.
-              Each tile slot (1–4) can only be held by one category at a time.
+              Toggle which tile slots each category appears in. A category can be linked to multiple tiles,
+              and multiple categories can share the same tile slot.
             </p>
             <div className="flex gap-2 mt-2">
               {["1 · Tunnel ELV", "2 · ITS Solutions", "3 · Automation", "4 · Road Safety"].map((t) => (
