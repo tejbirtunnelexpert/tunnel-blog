@@ -10,7 +10,7 @@ export default function MemberSignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [devOtps, setDevOtps] = useState<{ emailOtp: string; mobileOtp: string } | null>(null);
+  const [devOtps, setDevOtps] = useState<{ emailOtp: string; mobileOtp: string; memberId: string } | null>(null);
   const [form, setForm] = useState({
     name: "", email: "", mobile: "", password: "", company: "", position: "",
   });
@@ -32,13 +32,12 @@ export default function MemberSignupPage() {
       if (!res.ok) { toast.error(data.error); return; }
 
       if (data._dev) {
-        setDevOtps({ emailOtp: data._dev.emailOtp, mobileOtp: data._dev.mobileOtp });
-        toast("OTP keys not configured — OTPs shown below for testing.", { icon: "ℹ️" });
+        // Dev mode: show OTPs on screen, don't auto-redirect
+        setDevOtps({ emailOtp: data._dev.emailOtp, mobileOtp: data._dev.mobileOtp, memberId: data.memberId });
       } else {
         toast.success("OTPs sent to your email and mobile!");
+        router.push(`/member/verify?id=${data.memberId}`);
       }
-
-      router.push(`/member/verify?id=${data.memberId}`);
     } finally {
       setLoading(false);
     }
@@ -63,10 +62,25 @@ export default function MemberSignupPage() {
         </div>
 
         {devOtps && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4 text-sm">
-            <p className="text-yellow-400 font-semibold mb-2">⚠ Dev Mode — Configure Resend + Fast2SMS for real OTPs</p>
-            <p className="text-gray-300">Email OTP: <strong className="text-signal-amber text-lg tracking-widest">{devOtps.emailOtp}</strong></p>
-            <p className="text-gray-300">Mobile OTP: <strong className="text-signal-amber text-lg tracking-widest">{devOtps.mobileOtp}</strong></p>
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-5 mb-4 space-y-4">
+            <p className="text-yellow-400 font-semibold text-sm">⚠ Email/SMS not configured — OTPs shown here for testing</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-tunnel-900 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 mb-1">Email OTP</p>
+                <p className="text-3xl font-bold tracking-[0.3em] text-signal-amber">{devOtps.emailOtp}</p>
+              </div>
+              <div className="bg-tunnel-900 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 mb-1">Mobile OTP</p>
+                <p className="text-3xl font-bold tracking-[0.3em] text-signal-amber">{devOtps.mobileOtp}</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">Note both OTPs above, then click the button below to continue.</p>
+            <button
+              onClick={() => router.push(`/member/verify?id=${devOtps.memberId}`)}
+              className="btn-primary w-full justify-center"
+            >
+              I&apos;ve noted the OTPs — Continue to Verify →
+            </button>
           </div>
         )}
 
