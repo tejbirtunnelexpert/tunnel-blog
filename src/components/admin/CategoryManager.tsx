@@ -8,13 +8,7 @@ import { slugify } from "@/lib/utils";
 import toast from "react-hot-toast";
 import type { Category } from "@/types";
 
-const TILE_SLOTS = [
-  { value: "", label: "— No tile —" },
-  { value: "1", label: "Tile 1 · Tunnel ELV" },
-  { value: "2", label: "Tile 2 · ITS Solutions" },
-  { value: "3", label: "Tile 3 · Automation" },
-  { value: "4", label: "Tile 4 · Road Safety" },
-];
+const TILE_LABELS = ["ELV", "ITS", "Auto", "Safety"];
 
 export default function CategoryManager({ categories: initial }: { categories: Category[] }) {
   const [categories, setCategories] = useState(initial);
@@ -40,7 +34,7 @@ export default function CategoryManager({ categories: initial }: { categories: C
       toast.error(error.message.includes("unique") ? "Category already exists." : error.message);
     } else {
       toast.success("Category created.");
-      setCategories([...categories, { ...data, post_count: 0 }]);
+      setCategories([...categories, { ...data, post_count: 0, feature_tiles: [] }]);
       setName(""); setDescription("");
       router.refresh();
     }
@@ -58,42 +52,60 @@ export default function CategoryManager({ categories: initial }: { categories: C
     }
   }
 
-  async function handleTileChange(id: string, value: string) {
-    setTileUpdating(id);
-    const feature_order = value === "" ? null : parseInt(value);
+  async function toggleTile(id: string, slot: number) {
+    setTileUpdating(id + "-" + slot);
+    const cat = categories.find((c) => c.id === id);
+    const currentTiles: number[] = (cat as any)?.feature_tiles || [];
+    const hasSlot = currentTiles.includes(slot);
 
-    // If assigning a slot, clear it from any other category first
-    if (feature_order !== null) {
-      const existing = categories.find((c) => (c as any).feature_order === feature_order && c.id !== id);
-      if (existing) {
-        await supabase.from("categories").update({ feature_order: null }).eq("id", existing.id);
+    let newTiles: number[];
+    let otherCatNewTiles: { id: string; tiles: number[] } | null = null;
+
+    if (hasSlot) {
+      // Remove this slot from current category
+      newTiles = currentTiles.filter((t) => t !== slot);
+    } else {
+      // Add slot — first remove it from any other category that owns it
+      const owner = categories.find((c) => c.id !== id && ((c as any).feature_tiles || []).includes(slot));
+      if (owner) {
+        const ownerTiles = ((owner as any).feature_tiles || []).filter((t: number) => t !== slot);
+        await supabase.from("categories").update({ feature_tiles: ownerTiles }).eq("id", owner.id);
+        otherCatNewTiles = { id: owner.id, tiles: ownerTiles };
       }
+      newTiles = [...currentTiles, slot].sort();
     }
 
-    const { error } = await supabase.from("categories").update({ feature_order }).eq("id", id);
+    const { error } = await supabase.from("categories").update({ feature_tiles: newTiles }).eq("id", id);
     if (error) {
       toast.error("Failed to update tile.");
     } else {
-      toast.success(feature_order ? `Linked to Tile ${feature_order}` : "Tile link removed.");
+      toast.success(hasSlot ? `Removed from Tile ${slot}` : `Added to Tile ${slot}`);
       setCategories(categories.map((c) => {
-        if ((c as any).feature_order === feature_order && c.id !== id) return { ...c, feature_order: null } as any;
-        if (c.id === id) return { ...c, feature_order } as any;
+        if (c.id === id) return { ...c, feature_tiles: newTiles } as any;
+        if (otherCatNewTiles && c.id === otherCatNewTiles.id) return { ...c, feature_tiles: otherCatNewTiles.tiles } as any;
         return c;
       }));
-      router.refresh();
     }
     setTileUpdating(null);
   }
 
   return (
     <div className="space-y-6">
-      {/* Homepage tile assignment info */}
+      {/* Info banner */}
       <div className="tunnel-card p-4 border border-signal-amber/20 bg-signal-amber/5">
         <div className="flex items-start gap-3">
           <LayoutGrid className="w-4 h-4 text-signal-amber mt-0.5 shrink-0" />
           <div>
             <p className="text-xs font-semibold text-signal-amber mb-1">Homepage Feature Tiles</p>
-            <p className="text-xs text-gray-400">Assign each category to a homepage tile slot using the dropdown. The tile on the homepage will link to that category's articles.</p>
+            <p className="text-xs text-gray-400">
+              Toggle which tile slots each category appears in. A category can be linked to multiple tiles.
+              Each tile slot (1–4) can only be held by one category at a time.
+            </p>
+            <div className="flex gap-2 mt-2">
+              {["1 · Tunnel ELV", "2 · ITS Solutions", "3 · Automation", "4 · Road Safety"].map((t) => (
+                <span key={t} className="text-xs bg-tunnel-700 text-gray-400 px-2 py-0.5 rounded">{t}</span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -121,37 +133,47 @@ export default function CategoryManager({ categories: initial }: { categories: C
         <div className="tunnel-card overflow-hidden">
           <div className="px-4 py-2 border-b border-tunnel-700 flex items-center justify-between">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Category</span>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Homepage Tile</span>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Tiles</span>
           </div>
           <div className="divide-y divide-tunnel-700">
-            {categories.map((cat) => (
-              <div key={cat.id} className="flex items-center gap-3 px-4 py-3 hover:bg-tunnel-700/40 transition-colors">
-                <Folder className="w-4 h-4 text-signal-amber shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-gray-200 font-medium truncate">{cat.name}</div>
-                  <div className="text-xs text-gray-600">{cat.slug} · {(cat as any).post_count} posts</div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {tileUpdating === cat.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-signal-amber" />
-                  ) : (
-                    <select
-                      value={(cat as any).feature_order?.toString() || ""}
-                      onChange={(e) => handleTileChange(cat.id, e.target.value)}
-                      className="tunnel-input text-xs py-1 px-2 h-auto w-44"
-                    >
-                      {TILE_SLOTS.map((s) => (
-                        <option key={s.value} value={s.value}>{s.label}</option>
-                      ))}
-                    </select>
-                  )}
+            {categories.map((cat) => {
+              const catTiles: number[] = (cat as any).feature_tiles || [];
+              return (
+                <div key={cat.id} className="flex items-center gap-3 px-4 py-3 hover:bg-tunnel-700/40 transition-colors">
+                  <Folder className="w-4 h-4 text-signal-amber shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-gray-200 font-medium truncate">{cat.name}</div>
+                    <div className="text-xs text-gray-600">{cat.slug} · {(cat as any).post_count} posts</div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {[1, 2, 3, 4].map((slot) => {
+                      const active = catTiles.includes(slot);
+                      const busy = tileUpdating === cat.id + "-" + slot;
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          disabled={!!tileUpdating}
+                          onClick={() => toggleTile(cat.id, slot)}
+                          title={`Tile ${slot}`}
+                          className={`w-10 h-7 rounded text-xs font-bold transition-all ${
+                            active
+                              ? "bg-signal-amber text-tunnel-900 border border-signal-amber"
+                              : "bg-tunnel-700 text-gray-500 border border-tunnel-600 hover:border-signal-amber/40 hover:text-gray-300"
+                          }`}
+                        >
+                          {busy ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : TILE_LABELS[slot - 1]}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <button onClick={() => handleDelete(cat.id)}
                     className="p-1.5 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {categories.length === 0 && (
               <div className="px-4 py-6 text-sm text-gray-500 text-center">No categories yet.</div>
             )}

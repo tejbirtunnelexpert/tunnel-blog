@@ -30,7 +30,7 @@ async function getPosts() {
 
 async function getCategories() {
   const supabase = await createClient();
-  const { data } = await supabase.from("categories").select("id, name, slug, feature_order").limit(20);
+  const { data } = await supabase.from("categories").select("id, name, slug, feature_tiles").limit(20);
   return data || [];
 }
 
@@ -56,9 +56,9 @@ export default async function HomePage() {
   const [posts, categories, slides] = await Promise.all([getPosts(), getCategories(), getHeroSlides()]);
   const [featured, ...rest] = posts || [];
 
-  // Build the 4 feature tiles from categories with feature_order assigned
+  // Build the 4 feature tiles from categories with feature_tiles array
   const featureTiles = [1, 2, 3, 4].map((slot) => {
-    const cat = categories.find((c: any) => c.feature_order === slot);
+    const cat = categories.find((c: any) => Array.isArray(c.feature_tiles) && c.feature_tiles.includes(slot));
     const defaults = TILE_DEFAULTS[slot - 1];
     return {
       icon: TILE_ICONS[slot - 1],
