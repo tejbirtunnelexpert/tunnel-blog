@@ -20,35 +20,30 @@ export function useAdminTheme() {
 
 export default function AdminThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<AdminTheme>("night-ops");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("admin-theme") as AdminTheme | null;
-    if (saved && ["night-ops", "daylight", "amethyst"].includes(saved)) {
-      setThemeState(saved);
+    // Read the current theme from the html element (set server-side via cookie)
+    const current = document.documentElement.dataset.siteTheme as AdminTheme;
+    if (current && ["night-ops", "daylight", "amethyst"].includes(current)) {
+      setThemeState(current);
     }
-    setMounted(true);
   }, []);
 
-  function setTheme(t: AdminTheme) {
+  async function setTheme(t: AdminTheme) {
     setThemeState(t);
-    localStorage.setItem("admin-theme", t);
-  }
-
-  // Avoid flash: render with default theme before hydration
-  if (!mounted) {
-    return (
-      <div data-admin-theme="night-ops" className="flex min-h-screen admin-theme-root">
-        {children}
-      </div>
-    );
+    // Instantly update html attribute so entire page (admin + public previews) updates
+    document.documentElement.dataset.siteTheme = t;
+    // Persist via cookie so SSR picks it up on next load
+    await fetch("/api/admin/set-theme", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme: t }),
+    });
   }
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
-      <div data-admin-theme={theme} className="flex min-h-screen admin-theme-root">
-        {children}
-      </div>
+      {children}
     </ThemeContext.Provider>
   );
 }

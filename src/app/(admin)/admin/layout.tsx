@@ -13,10 +13,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <AdminThemeProvider>
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-5xl mx-auto p-6 md:p-8">{children}</div>
-      </main>
+      <div className="flex min-h-screen">
+        <AdminSidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-5xl mx-auto p-6 md:p-8">{children}</div>
+        </main>
+      </div>
     </AdminThemeProvider>
   );
 }

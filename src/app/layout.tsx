@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: { default: "Tejbir Tunnel Expert", template: "%s | Tejbir Tunnel Expert" },
@@ -8,10 +9,13 @@ export const metadata: Metadata = {
   keywords: ["tunnel ELV", "ITS", "traffic management", "road automation", "SCADA"],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("site-theme")?.value || "night-ops";
+
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-tunnel-950 text-gray-100 antialiased">
+    <html lang="en" data-site-theme={theme}>
+      <body className="min-h-screen antialiased">
         {children}
         <Toaster
           position="top-right"
