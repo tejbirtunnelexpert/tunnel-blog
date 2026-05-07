@@ -10,7 +10,6 @@ export default function MemberSignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [devOtps, setDevOtps] = useState<{ mobileOtp: string; memberId: string } | null>(null);
   const [form, setForm] = useState({
     name: "", email: "", mobile: "", password: "", company: "", position: "",
   });
@@ -31,13 +30,8 @@ export default function MemberSignupPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      if (data._dev) {
-        // Dev mode: show OTP on screen, don't auto-redirect
-        setDevOtps({ mobileOtp: data._dev.mobileOtp, memberId: data.memberId });
-      } else {
-        toast.success("OTP sent to your mobile!");
-        router.push(`/member/verify?id=${data.memberId}`);
-      }
+      toast.success("Request submitted successfully!");
+      router.push("/member/pending");
     } finally {
       setLoading(false);
     }
@@ -61,23 +55,6 @@ export default function MemberSignupPage() {
           <p className="text-sm text-gray-500">Create your member account to access exclusive resources</p>
         </div>
 
-        {devOtps && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-5 mb-4 space-y-4">
-            <p className="text-yellow-400 font-semibold text-sm">⚠ FAST2SMS_API_KEY not configured — OTP shown here for testing</p>
-            <div className="bg-tunnel-900 rounded-lg p-4 text-center">
-              <p className="text-xs text-gray-500 mb-1">Mobile OTP</p>
-              <p className="text-4xl font-bold tracking-[0.5em] text-signal-amber">{devOtps.mobileOtp}</p>
-            </div>
-            <p className="text-xs text-gray-500">Note the OTP above, then click continue.</p>
-            <button
-              onClick={() => router.push(`/member/verify?id=${devOtps.memberId}`)}
-              className="btn-primary w-full justify-center"
-            >
-              I&apos;ve noted the OTP — Continue →
-            </button>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="tunnel-card p-6 space-y-4">
           <div>
             <label className="text-xs text-gray-400 mb-1 block">Full Name *</label>
@@ -90,9 +67,9 @@ export default function MemberSignupPage() {
               type="email" placeholder="you@example.com" className="tunnel-input" />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">Mobile Number *</label>
+            <label className="text-xs text-gray-400 mb-1 block">Mobile Number * (10 digits)</label>
             <input value={form.mobile} onChange={e => set("mobile", e.target.value)} required
-              placeholder="+91 98765 43210" className="tunnel-input" />
+              placeholder="9876543210" className="tunnel-input" inputMode="numeric" />
           </div>
           <div>
             <label className="text-xs text-gray-400 mb-1 block">
@@ -122,7 +99,7 @@ export default function MemberSignupPage() {
 
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center mt-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? "Sending OTPs…" : "Send OTP & Continue"}
+            {loading ? "Submitting…" : "Submit Request"}
           </button>
         </form>
 
