@@ -99,7 +99,7 @@ export default function MemberSignupPage() {
 
           <button type="submit" disabled={loading} className="btn-primary w-full justify-center mt-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? "Submitting…" : "Submit Request"}
+            {loading ? "Submitting…" : "Create Account"}
           </button>
         </form>
 
