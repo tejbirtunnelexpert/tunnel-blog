@@ -77,6 +77,7 @@ export default function Footer({ siteName = "Tejbir Tunnel Expert", logoUrl }: F
                 { href: "/category/automation", label: "Automation" },
                 { href: "/category/road-safety", label: "Road Safety" },
                 { href: "/category/technology", label: "Technology" },
+                { href: "/contact", label: "Contact Us" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-gray-500 hover:text-signal-amber transition-colors flex items-center gap-1.5 group">

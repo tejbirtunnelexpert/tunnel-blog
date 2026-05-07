@@ -14,12 +14,26 @@ export default function SettingsPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Contact info state
+  const [contactNotifyEmail, setContactNotifyEmail] = useState("");
+  const [contactOwnerName, setContactOwnerName] = useState("");
+  const [contactAddress, setContactAddress] = useState("");
+  const [contactPublicEmail, setContactPublicEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [savingContact, setSavingContact] = useState(false);
+
   useEffect(() => {
-    fetch("/api/site-settings")
+    // Fetch all settings including private notify email from admin endpoint
+    fetch("/api/admin/site-settings")
       .then((r) => r.json())
       .then((d) => {
         setSiteName(d.siteName || "");
         setLogoUrl(d.logoUrl || null);
+        setContactNotifyEmail(d.contactNotifyEmail || "");
+        setContactOwnerName(d.contactOwnerName || "");
+        setContactAddress(d.contactAddress || "");
+        setContactPublicEmail(d.contactPublicEmail || "");
+        setContactPhone(d.contactPhone || "");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -68,6 +82,33 @@ export default function SettingsPage() {
       toast.error("Something went wrong.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function saveContactInfo() {
+    setSavingContact(true);
+    try {
+      const res = await fetch("/api/admin/site-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contactNotifyEmail,
+          contactOwnerName,
+          contactAddress,
+          contactPublicEmail,
+          contactPhone,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Contact info saved!");
+      } else {
+        toast.error(data.error || "Failed to save.");
+      }
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setSavingContact(false);
     }
   }
 
@@ -194,7 +235,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Logo */}
-      <div className="tunnel-card p-6 space-y-4">
+      <div id="logo-section" className="tunnel-card p-6 space-y-4">
         <h2 className="text-sm font-semibold text-white">Site Logo</h2>
 
         {/* Current logo preview */}
@@ -291,6 +332,76 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
+      </div>
+      {/* Contact Page */}
+      <div className="tunnel-card p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-white">Contact Page</h2>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-400">
+            Notification email (private — where form messages are sent)
+          </label>
+          <input
+            type="email"
+            value={contactNotifyEmail}
+            onChange={(e) => setContactNotifyEmail(e.target.value)}
+            placeholder="admin@example.com"
+            className="tunnel-input w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-400">Owner / Organisation Name</label>
+          <input
+            type="text"
+            value={contactOwnerName}
+            onChange={(e) => setContactOwnerName(e.target.value)}
+            placeholder="Your Name or Company"
+            className="tunnel-input w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-400">Address</label>
+          <textarea
+            rows={3}
+            value={contactAddress}
+            onChange={(e) => setContactAddress(e.target.value)}
+            placeholder="123 Main St, City, Country"
+            className="tunnel-input w-full resize-none"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-400">Public Email</label>
+          <input
+            type="email"
+            value={contactPublicEmail}
+            onChange={(e) => setContactPublicEmail(e.target.value)}
+            placeholder="contact@yoursite.com"
+            className="tunnel-input w-full"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-400">Phone</label>
+          <input
+            type="text"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            placeholder="+1 234 567 890"
+            className="tunnel-input w-full"
+          />
+        </div>
+
+        <button
+          onClick={saveContactInfo}
+          disabled={savingContact}
+          className="btn-primary"
+        >
+          {savingContact ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+          Save Contact Info
+        </button>
       </div>
     </div>
   );

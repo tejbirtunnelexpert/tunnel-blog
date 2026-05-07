@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, FileText, MessageSquare,
-  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images, Users, BookOpen, Palette, Settings
+  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images, Users, BookOpen, Palette, Settings, MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -20,6 +20,7 @@ const navItems = [
   { href: "/admin/hero-slides", label: "Hero Slideshow", icon: Images },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
   { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/contact-messages", label: "Contact Messages", icon: MessageCircle },
   { href: "/admin/member-resources", label: "Member Resources", icon: BookOpen },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
