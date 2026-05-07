@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: { default: "Tejbir Tunnel Expert", template: "%s | Tejbir Tunnel Expert" },
@@ -10,8 +11,21 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get("site-theme")?.value || "night-ops";
+  // 1. Try the database first (true site-wide setting, affects all browsers)
+  let theme = "night-ops";
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "site_theme")
+      .single();
+    if (data?.value) theme = data.value;
+  } catch {
+    // 2. Fallback to cookie (local browser override) if DB unavailable
+    const cookieStore = await cookies();
+    theme = cookieStore.get("site-theme")?.value || "night-ops";
+  }
 
   return (
     <html lang="en" data-site-theme={theme}>

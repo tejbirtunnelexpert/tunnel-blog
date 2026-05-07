@@ -13,12 +13,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid theme" }, { status: 400 });
   }
 
+  // Persist to database — affects ALL visitors on ALL browsers
+  const { error } = await supabase
+    .from("site_settings")
+    .upsert({ key: "site_theme", value: theme });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Also set a cookie for immediate SSR on current browser without a reload
   const res = NextResponse.json({ ok: true });
   res.cookies.set("site-theme", theme, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
     sameSite: "lax",
-    httpOnly: false, // readable by client JS if needed
+    httpOnly: false,
   });
   return res;
 }
