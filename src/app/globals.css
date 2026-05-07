@@ -257,6 +257,10 @@
 [data-site-theme="daylight"] .text-gray-600 { color: #3b6fd4 !important; }
 [data-site-theme="daylight"] .hover\:text-gray-200:hover { color: #0c1840 !important; }
 [data-site-theme="daylight"] .hover\:text-gray-300:hover { color: #1e3a8a !important; }
+/* Hero section always sits over a dark image — keep ALL text white inside it */
+[data-site-theme="daylight"] .bg-tunnel-gradient .text-gray-300 { color: rgba(255, 255, 255, 0.9) !important; }
+[data-site-theme="daylight"] .bg-tunnel-gradient .text-gray-400 { color: rgba(255, 255, 255, 0.85) !important; }
+[data-site-theme="daylight"] .bg-tunnel-gradient .text-white { color: #ffffff !important; }
 
 /* ============ AMETHYST (medium royal purple + gold) ============ */
 /* Background scale: clearly purple, mid-way between Night Ops and Daylight */
