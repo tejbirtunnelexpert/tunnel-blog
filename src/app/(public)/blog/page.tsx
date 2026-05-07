@@ -3,6 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import PostCard from "@/components/blog/PostCard";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Post } from "@/types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description: "All articles on Tunnel ELV, ITS, traffic management and road automation.",
+};
 
 const PAGE_SIZE = 9;
 

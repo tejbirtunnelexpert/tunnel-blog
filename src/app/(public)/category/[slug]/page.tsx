@@ -4,6 +4,7 @@ import PostCard from "@/components/blog/PostCard";
 import { Folder } from "lucide-react";
 import type { Post } from "@/types";
 import type { Metadata } from "next";
+import { baseUrl } from "@/lib/base-url";
 
 async function getCategoryWithPosts(slug: string) {
   const supabase = await createClient();
@@ -41,7 +42,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const result = await getCategoryWithPosts(slug);
   if (!result) return { title: "Category Not Found" };
-  return { title: result.category.name, description: result.category.description };
+  const cat = result.category;
+  const base = baseUrl();
+  return {
+    title: cat.name,
+    description: cat.description,
+    openGraph: {
+      title: `${cat.name} — Articles`,
+      description: `Browse all articles in ${cat.name}`,
+      url: `${base}/category/${cat.slug}`,
+    },
+    twitter: { card: "summary", title: `${cat.name} — Articles` },
+  };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -8,6 +8,7 @@ import ShareButton from "@/components/blog/ShareButton";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Tag, Folder, ArrowLeft, MapPin, User } from "lucide-react";
 import type { Metadata } from "next";
+import { baseUrl } from "@/lib/base-url";
 
 async function getPost(slug: string) {
   const supabase = await createClient();
@@ -37,10 +38,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Post Not Found" };
+  const base = baseUrl();
   return {
     title: post.title,
     description: post.excerpt || undefined,
-    openGraph: { title: post.title, description: post.excerpt || undefined, images: post.cover_image ? [post.cover_image] : [] },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.excerpt || undefined,
+      url: `${base}/blog/${slug}`,
+      images: post.cover_image ? [{ url: post.cover_image, width: 1200, height: 630, alt: post.title }] : [],
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt || undefined,
+      images: post.cover_image ? [post.cover_image] : [],
+    },
   };
 }
 

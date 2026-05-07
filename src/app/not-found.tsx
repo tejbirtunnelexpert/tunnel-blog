@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Radio } from "lucide-react";
 
+export const metadata: import("next").Metadata = {
+  title: "Page Not Found",
+  robots: { index: false },
+};
+
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-tunnel-950 flex items-center justify-center px-4">

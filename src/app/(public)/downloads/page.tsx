@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Download, FolderOpen, FileText } from "lucide-react";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Downloads",
+  description: "Free downloads — presentations, guides and resources on Tunnel ELV and ITS systems.",
+};
 
 export default async function DownloadsPage() {
   const supabase = await createClient();

@@ -2,6 +2,30 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Download, FileText, ArrowLeft, FolderOpen, Presentation } from "lucide-react";
+import type { Metadata } from "next";
+import { baseUrl } from "@/lib/base-url";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: category } = await supabase
+    .from("download_categories")
+    .select("name, description, slug")
+    .eq("slug", slug)
+    .single();
+  if (!category) return { title: "Downloads" };
+  const base = baseUrl();
+  return {
+    title: category.name,
+    description: category.description || `Browse and download files in ${category.name}.`,
+    openGraph: {
+      title: `${category.name} — Downloads`,
+      description: category.description || `Browse and download files in ${category.name}.`,
+      url: `${base}/downloads/${category.slug}`,
+    },
+    twitter: { card: "summary", title: `${category.name} — Downloads` },
+  };
+}
 
 function isPptFile(url: string) {
   return /\.(ppt|pptx|ppts)(\?|$)/i.test(url);

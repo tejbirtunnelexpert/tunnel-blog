@@ -4,6 +4,10 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminThemeProvider from "@/components/admin/AdminThemeProvider";
 import { getSiteSettings } from "@/lib/site-settings";
 
+export const metadata: import("next").Metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

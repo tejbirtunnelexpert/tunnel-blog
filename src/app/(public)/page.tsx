@@ -6,6 +6,14 @@ import HeroSlideshow from "@/components/blog/HeroSlideshow";
 import { ArrowRight, Radio, Cpu, TrafficCone, Zap, type LucideIcon } from "lucide-react";
 import type { Post } from "@/types";
 import { getSiteSettings } from "@/lib/site-settings";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  description: "Deep-dive articles on road tunnel ELV systems, ITS platforms, traffic automation, and smart infrastructure by Tejbir Singh Dhillon.",
+  openGraph: {
+    url: "https://tunnel-blog-fruhba1sm-tejbirtunnelexperts-projects.vercel.app",
+  },
+};
 
 async function getPosts() {
   const supabase = await createClient();

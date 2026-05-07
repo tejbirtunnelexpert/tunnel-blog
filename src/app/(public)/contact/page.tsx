@@ -2,7 +2,10 @@ import { getSiteSettings } from "@/lib/site-settings";
 import ContactForm from "@/components/contact/ContactForm";
 import { MapPin, Mail, Phone } from "lucide-react";
 
-export const metadata = { title: "Contact Us" };
+export const metadata: import("next").Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with Tejbir Singh Dhillon — Tunnel ELV & Automation specialist.",
+};
 
 export default async function ContactPage() {
   const settings = await getSiteSettings();

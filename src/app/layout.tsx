@@ -3,13 +3,38 @@ import { Toaster } from "react-hot-toast";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/site-settings";
+import { baseUrl } from "@/lib/base-url";
 
 export async function generateMetadata() {
-  const { siteName } = await getSiteSettings();
+  const { siteName, logoUrl } = await getSiteSettings();
+  const base = baseUrl();
   return {
+    metadataBase: new URL(base),
     title: { default: siteName, template: `%s | ${siteName}` },
-    description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation",
-    keywords: ["tunnel ELV", "ITS", "traffic management", "road automation", "SCADA"],
+    description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation by Tejbir Singh Dhillon — a practicing Tunnel ELV & Automation specialist.",
+    keywords: ["tunnel ELV", "ITS", "traffic management", "road automation", "SCADA", "tunnel automation", "ELV systems", "intelligent transportation"],
+    authors: [{ name: "Tejbir Singh Dhillon" }],
+    creator: siteName,
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: base,
+      siteName: siteName,
+      title: siteName,
+      description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation",
+      images: logoUrl ? [{ url: logoUrl, width: 200, height: 200, alt: siteName }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteName,
+      description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation",
+      images: logoUrl ? [logoUrl] : [],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    },
   };
 }
 
