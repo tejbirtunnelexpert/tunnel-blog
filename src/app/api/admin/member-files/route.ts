@@ -26,36 +26,25 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const formData = await req.formData();
-  const file = formData.get("file") as File;
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const categoryId = formData.get("categoryId") as string;
+  const body = await req.json();
+  const { title, description, categoryId, filePath, fileName, fileSize, fileType } = body;
 
-  if (!file || !title || !categoryId) {
-    return NextResponse.json({ error: "File, title and category are required." }, { status: 400 });
+  if (!title || !categoryId || !filePath) {
+    return NextResponse.json({ error: "Title, category and filePath are required." }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  const { data: uploaded, error: uploadError } = await adminClient.storage
+  const { data: { publicUrl } } = adminClient.storage
     .from("member-files")
-    .upload(fileName, buffer, { contentType: file.type, upsert: false });
-
-  if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
-
-  const { data: { publicUrl } } = adminClient.storage.from("member-files").getPublicUrl(uploaded.path);
+    .getPublicUrl(filePath);
 
   const { data, error } = await supabase.from("member_files").insert({
     title,
     description: description || null,
     category_id: parseInt(categoryId),
     file_url: publicUrl,
-    file_name: file.name,
-    file_size: file.size,
-    file_type: file.type,
+    file_name: fileName,
+    file_size: fileSize,
+    file_type: fileType,
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
