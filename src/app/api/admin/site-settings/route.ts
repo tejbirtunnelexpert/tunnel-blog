@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const updates: Array<{ key: string; value: string }> = [];
 
   if (siteName !== undefined) {
-    const trimmed = String(siteName).slice(0, 25).trim();
+    const trimmed = String(siteName).slice(0, 50).trim();
     if (!trimmed) return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
     updates.push({ key: "site_name", value: trimmed });
   }

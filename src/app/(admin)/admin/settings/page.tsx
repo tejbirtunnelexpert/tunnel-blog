@@ -169,16 +169,16 @@ export default function SettingsPage() {
         <h2 className="text-sm font-semibold text-white">Site Name</h2>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-400">Name (max 25 characters)</label>
-            <span className={`text-xs font-mono ${siteName.length >= 25 ? "text-red-400" : "text-gray-500"}`}>
-              {siteName.length}/25
+            <label className="text-xs font-medium text-gray-400">Name (max 50 characters)</label>
+            <span className={`text-xs font-mono ${siteName.length >= 50 ? "text-red-400" : "text-gray-500"}`}>
+              {siteName.length}/50
             </span>
           </div>
           <input
             type="text"
             value={siteName}
-            onChange={(e) => setSiteName(e.target.value.slice(0, 25))}
-            maxLength={25}
+            onChange={(e) => setSiteName(e.target.value.slice(0, 50))}
+            maxLength={50}
             placeholder="Tejbir Tunnel Expert"
             className="tunnel-input w-full"
           />
