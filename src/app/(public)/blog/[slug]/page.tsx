@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import CommentSection from "@/components/blog/CommentSection";
 import NewsletterWidget from "@/components/blog/NewsletterWidget";
+import ShareButton from "@/components/blog/ShareButton";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Tag, Folder, ArrowLeft, MapPin, User } from "lucide-react";
 import type { Metadata } from "next";
@@ -123,6 +124,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             className="blog-content"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
+
+          {/* Share */}
+          <div className="flex items-center gap-3 pt-6 mt-6 border-t border-tunnel-700">
+            <span className="text-sm text-gray-500">Found this useful?</span>
+            <ShareButton
+              title={post.title}
+              url={`${process.env.NEXT_PUBLIC_SITE_URL}/blog/${post.slug}`}
+            />
+          </div>
 
           <CommentSection postId={post.id} comments={post.comments} />
         </article>
