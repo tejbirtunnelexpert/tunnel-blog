@@ -69,7 +69,7 @@ export async function sendEmailOTP(
 export async function sendSMSOTP(
   mobile: string,
   otp: string
-): Promise<{ ok: boolean; dev?: boolean }> {
+): Promise<{ ok: boolean; dev?: boolean; error?: string }> {
   const apiKey = process.env.FAST2SMS_API_KEY;
 
   if (!apiKey) {
