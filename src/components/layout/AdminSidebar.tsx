@@ -5,10 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, FileText, MessageSquare,
-  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images, Users, BookOpen
+  Mail, LogOut, Radio, ExternalLink, FolderOpen, Download, Images, Users, BookOpen, Palette
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { useAdminTheme, type AdminTheme } from "@/components/admin/AdminThemeProvider";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -22,10 +23,17 @@ const navItems = [
   { href: "/admin/member-resources", label: "Member Resources", icon: BookOpen },
 ];
 
+const themes: { id: AdminTheme; label: string; dot: string; bg: string }[] = [
+  { id: "night-ops",  label: "Night Ops",  dot: "#f59e0b", bg: "#050708" },
+  { id: "daylight",   label: "Daylight",   dot: "#1d4ed8", bg: "#ffffff" },
+  { id: "amethyst",   label: "Amethyst",   dot: "#a855f7", bg: "#1e1040" },
+];
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { theme, setTheme } = useAdminTheme();
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -35,18 +43,18 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="w-60 shrink-0 bg-tunnel-900 border-r border-tunnel-700 min-h-screen flex flex-col">
+    <aside className="w-60 shrink-0 admin-sidebar min-h-screen flex flex-col">
       {/* Logo */}
-      <div className="p-5 border-b border-tunnel-700">
+      <div className="p-5 admin-sidebar-border-b">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/40 flex items-center justify-center">
-            <Radio className="w-4 h-4 text-signal-amber" />
+          <div className="w-8 h-8 rounded admin-accent-bg-faint admin-accent-border flex items-center justify-center">
+            <Radio className="w-4 h-4 admin-accent-text" />
           </div>
           <div>
-            <div className="font-semibold text-white text-sm">
-              Tejbir <span className="text-signal-amber">Tunnel Expert</span>
+            <div className="font-semibold admin-text-primary text-sm">
+              Tejbir <span className="admin-accent-text">Tunnel Expert</span>
             </div>
-            <div className="text-xs text-gray-500">Admin Panel</div>
+            <div className="text-xs admin-text-muted">Admin Panel</div>
           </div>
         </Link>
       </div>
@@ -62,8 +70,8 @@ export default function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all",
                 active
-                  ? "bg-signal-amber/10 text-signal-amber border border-signal-amber/20"
-                  : "text-gray-400 hover:text-gray-200 hover:bg-tunnel-800"
+                  ? "admin-nav-active"
+                  : "admin-nav-inactive"
               )}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -73,19 +81,55 @@ export default function AdminSidebar() {
         })}
       </nav>
 
+      {/* Theme switcher */}
+      <div className="px-3 pb-2">
+        <div className="admin-sidebar-border-t pt-3">
+          <div className="flex items-center gap-2 px-1 mb-2">
+            <Palette className="w-3.5 h-3.5 admin-text-muted" />
+            <span className="text-xs admin-text-muted font-medium">Panel Theme</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            {themes.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                className={cn(
+                  "flex items-center gap-2.5 px-2 py-1.5 rounded-md text-xs transition-all w-full text-left",
+                  theme === t.id
+                    ? "admin-nav-active"
+                    : "admin-nav-inactive"
+                )}
+              >
+                {/* Color swatch */}
+                <span
+                  className="w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: t.bg, borderColor: t.dot }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: t.dot }}
+                  />
+                </span>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Bottom */}
-      <div className="p-3 border-t border-tunnel-700 space-y-0.5">
+      <div className="p-3 admin-sidebar-border-t space-y-0.5">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-500 hover:text-gray-300 hover:bg-tunnel-800 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm admin-text-muted admin-hover-link transition-colors"
         >
           <ExternalLink className="w-4 h-4 shrink-0" />
           View Site
         </Link>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm admin-text-muted hover:text-red-400 hover:bg-red-500/5 transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           Sign Out
