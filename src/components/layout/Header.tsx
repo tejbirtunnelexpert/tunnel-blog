@@ -14,10 +14,20 @@ const navLinks = [
   { href: "/search", label: "Search" },
 ];
 
-export default function Header() {
+interface HeaderProps {
+  siteName?: string;
+  logoUrl?: string | null;
+}
+
+export default function Header({ siteName = "Tejbir Tunnel Expert", logoUrl }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const router = useRouter();
+
+  // Split on first space: first word in white, rest in amber
+  const spaceIdx = siteName.indexOf(" ");
+  const nameFirst = spaceIdx === -1 ? "" : siteName.slice(0, spaceIdx);
+  const nameRest = spaceIdx === -1 ? siteName : siteName.slice(spaceIdx + 1);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -32,11 +42,16 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-          <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/40 flex items-center justify-center group-hover:border-signal-amber transition-colors">
-            <Radio className="w-4 h-4 text-signal-amber" />
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="w-7 h-7 object-contain rounded" />
+          ) : (
+            <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/40 flex items-center justify-center group-hover:border-signal-amber transition-colors">
+              <Radio className="w-4 h-4 text-signal-amber" />
+            </div>
+          )}
           <span className="font-semibold text-white text-sm tracking-wide">
-            Tejbir <span className="text-signal-amber">Tunnel Expert</span>
+            {nameFirst && <>{nameFirst} </>}
+            <span className="text-signal-amber">{nameRest}</span>
           </span>
         </Link>
 

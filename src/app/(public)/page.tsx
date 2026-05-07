@@ -5,6 +5,7 @@ import NewsletterWidget from "@/components/blog/NewsletterWidget";
 import HeroSlideshow from "@/components/blog/HeroSlideshow";
 import { ArrowRight, Radio, Cpu, TrafficCone, Zap, type LucideIcon } from "lucide-react";
 import type { Post } from "@/types";
+import { getSiteSettings } from "@/lib/site-settings";
 
 async function getPosts() {
   const supabase = await createClient();
@@ -53,7 +54,7 @@ const TILE_DEFAULTS = [
 ];
 
 export default async function HomePage() {
-  const [posts, categories, slides] = await Promise.all([getPosts(), getCategories(), getHeroSlides()]);
+  const [posts, categories, slides, { siteName }] = await Promise.all([getPosts(), getCategories(), getHeroSlides(), getSiteSettings()]);
   const [featured, ...rest] = posts || [];
 
   // Build the 4 feature tiles from categories with feature_tiles array
@@ -74,7 +75,7 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-tunnel-gradient border-b border-tunnel-700" style={{ minHeight: "420px" }}>
         {slides.length > 0 ? (
-          <HeroSlideshow slides={slides} />
+          <HeroSlideshow slides={slides} siteName={siteName} />
         ) : (
           <>
             <div className="absolute inset-0 opacity-20 pointer-events-none"
@@ -88,7 +89,7 @@ export default async function HomePage() {
             <div className="max-w-3xl mx-auto text-center relative z-10 py-20 px-4">
               <div className="inline-flex items-center gap-2 signal-badge mb-6">
                 <Radio className="w-3.5 h-3.5" />
-                <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
+                <span>{siteName} — ELV & ITS Insights</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
                 Where Infrastructure<br />

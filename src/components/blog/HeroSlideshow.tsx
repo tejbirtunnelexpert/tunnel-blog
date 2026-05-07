@@ -17,12 +17,13 @@ interface Slide {
 
 interface Props {
   slides: Slide[];
+  siteName?: string;
 }
 
 const DEFAULT_HEADING = "Where Infrastructure\nMeets Intelligence";
 const DEFAULT_SUBTEXT = "Deep-dive articles on road tunnel ELV systems, ITS platforms, traffic automation, and smart infrastructure by Tejbir — a practicing Tunnel ELV & Automation specialist.";
 
-export default function HeroSlideshow({ slides }: Props) {
+export default function HeroSlideshow({ slides, siteName }: Props) {
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
   const [textFading, setTextFading] = useState(false);
@@ -84,7 +85,7 @@ export default function HeroSlideshow({ slides }: Props) {
       >
         <div className="inline-flex items-center gap-2 signal-badge mb-6">
           <Radio className="w-3.5 h-3.5" />
-          <span>Tejbir Tunnel Expert — ELV & ITS Insights</span>
+          <span>{siteName || "Tejbir Tunnel Expert"} — ELV & ITS Insights</span>
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">

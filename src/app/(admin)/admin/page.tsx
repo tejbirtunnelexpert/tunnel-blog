@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { FileText, MessageSquare, Mail, TrendingUp, PlusCircle, Eye, HardDrive, Wifi, ExternalLink } from "lucide-react";
+import { getSiteSettings } from "@/lib/site-settings";
 
 const STORAGE_LIMIT = 1 * 1024 * 1024 * 1024; // 1 GB
 const BANDWIDTH_LIMIT = 5 * 1024 * 1024 * 1024; // 5 GB
@@ -57,7 +58,7 @@ async function getRecentPosts() {
 }
 
 export default async function AdminDashboard() {
-  const [stats, recentPosts] = await Promise.all([getStats(), getRecentPosts()]);
+  const [stats, recentPosts, { siteName }] = await Promise.all([getStats(), getRecentPosts(), getSiteSettings()]);
 
   const statCards = [
     { label: "Total Posts", value: stats.total_posts, sub: `${stats.published_posts} published`, icon: FileText, color: "text-signal-amber" },
@@ -71,7 +72,7 @@ export default async function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Welcome back to Tejbir Tunnel Expert Admin</p>
+          <p className="text-sm text-gray-500 mt-0.5">Welcome back to {siteName} Admin</p>
         </div>
         <Link href="/admin/posts/new" className="btn-primary">
           <PlusCircle className="w-4 h-4" /> New Post

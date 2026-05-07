@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 
-export const metadata: Metadata = {
-  title: { default: "Tejbir Tunnel Expert", template: "%s | Tejbir Tunnel Expert" },
-  description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation by Tejbir",
-  keywords: ["tunnel ELV", "ITS", "traffic management", "road automation", "SCADA"],
-};
+export async function generateMetadata() {
+  const { siteName } = await getSiteSettings();
+  return {
+    title: { default: siteName, template: `%s | ${siteName}` },
+    description: "Insights on Tunnel ELV, ITS, Traffic Management & Road Automation",
+    keywords: ["tunnel ELV", "ITS", "traffic management", "road automation", "SCADA"],
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // 1. Try the database first (true site-wide setting, affects all browsers)

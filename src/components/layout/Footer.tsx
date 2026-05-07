@@ -5,9 +5,19 @@ import { useState } from "react";
 import { Radio, Mail, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function Footer() {
+interface FooterProps {
+  siteName?: string;
+  logoUrl?: string | null;
+}
+
+export default function Footer({ siteName = "Tejbir Tunnel Expert", logoUrl }: FooterProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Split on first space: first word in white, rest in amber
+  const spaceIdx = siteName.indexOf(" ");
+  const nameFirst = spaceIdx === -1 ? "" : siteName.slice(0, spaceIdx);
+  const nameRest = spaceIdx === -1 ? siteName : siteName.slice(spaceIdx + 1);
 
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +31,7 @@ export default function Footer() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success("Subscribed! Welcome to Tejbir Tunnel Expert.");
+        toast.success(`Subscribed! Welcome to ${siteName}.`);
         setEmail("");
       } else {
         toast.error(data.error || "Subscription failed.");
@@ -40,11 +50,16 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-3">
             <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/40 flex items-center justify-center">
-                <Radio className="w-4 h-4 text-signal-amber" />
-              </div>
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="w-7 h-7 object-contain rounded" />
+              ) : (
+                <div className="w-8 h-8 rounded bg-signal-amber/10 border border-signal-amber/40 flex items-center justify-center">
+                  <Radio className="w-4 h-4 text-signal-amber" />
+                </div>
+              )}
               <span className="font-semibold text-white text-sm">
-                Tejbir <span className="text-signal-amber">Tunnel Expert</span>
+                {nameFirst && <>{nameFirst} </>}
+                <span className="text-signal-amber">{nameRest}</span>
               </span>
             </Link>
             <p className="text-sm text-gray-500 leading-relaxed">
@@ -103,7 +118,7 @@ export default function Footer() {
         <div className="road-divider my-8" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
-          <span>© {new Date().getFullYear()} Tejbir Tunnel Expert Blog. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} {siteName} Blog. All rights reserved.</span>
           <Link href="/admin" className="hover:text-signal-amber transition-colors">Admin</Link>
         </div>
       </div>
