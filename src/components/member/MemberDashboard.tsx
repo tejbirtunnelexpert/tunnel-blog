@@ -36,6 +36,14 @@ function formatBytes(bytes: number | null) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isPptFile(url: string) {
+  return /\.(ppt|pptx|ppts)(\?|$)/i.test(url);
+}
+
+function officeViewerUrl(fileUrl: string) {
+  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
+}
+
 export default function MemberDashboard({ member, categories, files }: {
   member: Member;
   categories: Category[];
@@ -162,21 +170,34 @@ export default function MemberDashboard({ member, categories, files }: {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-auto">
+                <div className="flex flex-col gap-2 mt-auto">
                   <span className="text-xs text-gray-600">
                     {file.file_name?.split(".").pop()?.toUpperCase() || "FILE"}
                     {file.file_size ? ` · ${formatBytes(file.file_size)}` : ""}
                   </span>
-                  <a
-                    href={file.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={file.file_name || true}
-                    className="flex items-center gap-1.5 text-xs bg-signal-amber/10 text-signal-amber border border-signal-amber/20 px-3 py-1.5 rounded-md hover:bg-signal-amber/20 transition-colors"
-                  >
-                    <Download className="w-3 h-3" />
-                    Download
-                  </a>
+                  <div className="flex items-center gap-2">
+                    {isPptFile(file.file_url) && (
+                      <a
+                        href={officeViewerUrl(file.file_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs bg-blue-600/20 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-md hover:bg-blue-600/30 transition-colors flex-1 justify-center"
+                      >
+                        <Presentation className="w-3 h-3" />
+                        View Online
+                      </a>
+                    )}
+                    <a
+                      href={file.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={file.file_name || true}
+                      className="flex items-center gap-1.5 text-xs bg-signal-amber/10 text-signal-amber border border-signal-amber/20 px-3 py-1.5 rounded-md hover:bg-signal-amber/20 transition-colors flex-1 justify-center"
+                    >
+                      <Download className="w-3 h-3" />
+                      Download
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}

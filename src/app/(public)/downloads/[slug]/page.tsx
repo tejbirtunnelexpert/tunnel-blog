@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Download, FileText, ArrowLeft, FolderOpen } from "lucide-react";
+import { Download, FileText, ArrowLeft, FolderOpen, Presentation } from "lucide-react";
+
+function isPptFile(url: string) {
+  return /\.(ppt|pptx|ppts)(\?|$)/i.test(url);
+}
+
+function officeViewerUrl(fileUrl: string) {
+  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileUrl)}`;
+}
 
 export const revalidate = 60;
 
@@ -108,16 +116,29 @@ export default async function CategoryDownloadsPage({ params }: { params: Promis
                   {dl.description && (
                     <p className="text-gray-400 text-sm line-clamp-2 mb-4">{dl.description}</p>
                   )}
-                  <a
-                    href={dl.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    className="inline-flex items-center gap-2 bg-signal-amber text-tunnel-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-signal-amber/90 transition-colors w-full justify-center"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download PDF
-                  </a>
+                  <div className="flex flex-col gap-2">
+                    {isPptFile(dl.file_url) && (
+                      <a
+                        href={officeViewerUrl(dl.file_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors w-full justify-center"
+                      >
+                        <Presentation className="w-4 h-4" />
+                        View Online
+                      </a>
+                    )}
+                    <a
+                      href={dl.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="inline-flex items-center gap-2 bg-signal-amber text-tunnel-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-signal-amber/90 transition-colors w-full justify-center"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
